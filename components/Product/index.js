@@ -86,7 +86,7 @@ export default function Product() {
            <p>Rating: <strong>{review.rating}</strong></p>
           </li>))}
       </ul>
-      <ReviewForm id={data._id} productData={data}/>     
+      <ReviewForm productData={data}/>     
        <StyledLink href="/">Back to all</StyledLink>
     </ProductCard>
   );

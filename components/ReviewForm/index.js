@@ -1,35 +1,40 @@
 import { StyledForm, StyledHeading, StyledLabel } from "./ReviewForm.styled";
 import { StyledButton } from "../Button/Button.styled";
 import useSWR from "swr";
-/* import { useRouter } from "next/router"; */
 
-export default function ReviewForm({id, productData}) {
- /*  const router = useRouter();
-  const { id } = router.query; */
+export default function ReviewForm({ productData }) {
+  const { mutate } = useSWR(`/api/products/${productData._id}`);
 
-  const { mutate } = useSWR("/api/reviews");
   async function handleSubmit(event) {
     event.preventDefault();
 
     const formData = new FormData(event.target);
     const reviewData = Object.fromEntries(formData);
-    const response = await fetch("/api/reviews", {
+
+    const responseReview = await fetch("/api/reviews", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(reviewData),
     });
-    if (response.ok) {
-     /*  const data = await response.json(); */
-      const response = await fetch(`/api/products/${id}`, {
+
+    if (responseReview.ok) {
+      const data = await responseReview.json();
+      const responseProduct = await fetch(`/api/products/${productData._id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({...productData,/* /*  productData.reviews*/} ),
+        body: JSON.stringify({
+          ...productData,
+          reviews: [...productData.reviews, data.data._id],
+        }),
       });
-      mutate();
+
+      if (responseProduct.ok) {
+        mutate();
+      }
     }
   }
 
